@@ -1,17 +1,16 @@
 const express = require("express");
 const app = express();
-const mongoose = require("mongoose");
-const cors = require("cors");
-const Product = require("./models/Product");
-const multer = require("multer");
+const mongoose = require('mongoose');
+const cors = require('cors');
+const Product = require('./models/Product');
 
-require("dotenv").config();
+require('dotenv').config();
 
 const port = process.env.PORT || 5000;
 
 
-// ✅ ROOT CHECK
-app.get("/", (req, res) => {
+// ✅ HOME ROUTE
+app.get('/', (req, res) => {
     res.send("Backend is running");
 });
 
@@ -24,33 +23,27 @@ app.use(cors({
 app.use(express.json());
 
 
-// 🔥 IMPORTANT: VERCEL SAFE MULTER (memoryStorage)
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
-
-
 // MongoDB connect
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("MongoDB connected"))
-    .catch(err => console.log(err));
+    .then(() => {
+        console.log("MongoDB connected");
+    })
+    .catch((err) => {
+        console.log(err);
+    });
 
 
-// 🚀 API ROUTE
-app.post('/api/product', upload.single('image'), async (req, res) => {
+// 🚀 UPDATED API (NO MULTER, NO CRASH)
+app.post('/api/product', async (req, res) => {
+
     try {
 
-        const { name, description, price } = req.body;
+        const { name, description, price, image } = req.body;
 
         // validation
-        if (!name || !description || !price) {
+        if (!name || !description || !price || !image) {
             return res.status(400).json({
                 message: "All fields required"
-            });
-        }
-
-        if (!req.file) {
-            return res.status(400).json({
-                message: "Image required"
             });
         }
 
@@ -58,15 +51,13 @@ app.post('/api/product', upload.single('image'), async (req, res) => {
             name,
             description,
             price: Number(price),
-
-            // ✅ VERCEL SAFE STORAGE
-            image: req.file.buffer.toString("base64")
+            image // 👉 now image is URL (not file)
         });
 
         await product.save();
 
         res.status(201).json({
-            message: "Product uploaded successfully",
+            message: "Product has been successfully added",
             product
         });
 
@@ -80,4 +71,5 @@ app.post('/api/product', upload.single('image'), async (req, res) => {
 });
 
 
+// ⚠️ VERCEL REQUIRED EXPORT
 module.exports = app;
