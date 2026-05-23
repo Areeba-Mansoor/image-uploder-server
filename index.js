@@ -15,6 +15,9 @@ app.get('/', (req, res) => {
 
 
 app.use(cors());
+app.use(cors({
+  origin: "https://image-server-client.vercel.app"
+}));
 app.use(express.json())
 app.use('/uploads', express.static("uploads"))
 
