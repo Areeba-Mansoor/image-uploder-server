@@ -15,11 +15,6 @@ app.get('/', (req, res) => {
     res.send("Backend is running")
 })
 
-
-if (!fs.existsSync("uploads")) {
-    fs.mkdirSync("uploads");
-}
-
 app.use(cors({
   origin: "https://image-server-client.vercel.app"
 }));
