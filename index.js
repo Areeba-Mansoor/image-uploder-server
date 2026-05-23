@@ -3,7 +3,9 @@ const app = express();
 const mongoose = require('mongoose')
 const cors = require('cors')
 const Product = require('./models/Product')
+const fs = require("fs");
 const multer = require('multer')
+
 
 
 require('dotenv').config();
@@ -14,10 +16,14 @@ app.get('/', (req, res) => {
 })
 
 
-app.use(cors());
+if (!fs.existsSync("uploads")) {
+    fs.mkdirSync("uploads");
+}
+
 app.use(cors({
   origin: "https://image-server-client.vercel.app"
 }));
+
 app.use(express.json())
 app.use('/uploads', express.static("uploads"))
 
